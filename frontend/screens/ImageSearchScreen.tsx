@@ -6,8 +6,7 @@ import {
   Alert,
   Dimensions,
 } from 'react-native';
-
-import { FC, useCallback, useLayoutEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { Camera, CameraCapturedPicture } from 'expo-camera';
 import {
   FontAwesome,
@@ -18,9 +17,12 @@ import { CameraType } from 'expo-camera/build/Camera.types';
 import * as ImagePicker from 'expo-image-picker';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useIsFocused } from '@react-navigation/native';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { ImagePickerResult } from 'expo-image-picker';
+import { ImageInfo } from 'expo-image-picker/build/ImagePicker.types';
 import Loading from '../components/Loading';
 import { View, Text } from '../components/Themed';
+import Colors from '../constants/Colors';
+import useColorScheme from '../hooks/useColorScheme';
 
 const styles = StyleSheet.create({
   cameraContainer: {
@@ -35,6 +37,7 @@ type RatioOptions = {
 };
 
 const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
+  const colorScheme = useColorScheme();
   const [hasPermission, setHasPermission] = useState<boolean>(false);
   const isFocussed = useIsFocused();
   const [camera, setCamera] = useState<Camera | undefined>(undefined);
@@ -53,6 +56,7 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
 
   const askForCameraPermission = useCallback(async () => {
     const { status } = await Camera.requestPermissionsAsync();
+    console.log(status);
     setHasPermission(status === 'granted');
   }, []);
 
@@ -73,40 +77,20 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
     askForCameraRollPermission();
   }, [askForCameraPermission, askForCameraRollPermission]);
 
-  const pickImage = useCallback(async () => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      });
-      console.log(result);
-    } catch (e) {
-      console.log(e);
-    }
-  }, []);
-
-  const handleCameraType = () => {
-    setCameraType(
-      cameraType === Camera.Constants.Type.back
-        ? Camera.Constants.Type.front
-        : Camera.Constants.Type.back,
-    );
-  };
-
-  const createFormData = ({
-    uri,
-  }: CameraCapturedPicture): FormData | undefined => {
+  const createFormData = (uri: string): FormData | undefined => {
     const data = new FormData();
+    console.log(uri);
     const fileName = uri.split('/').pop();
+    console.log('test');
 
     if (fileName) {
       const match = /\.(\w+)$/.exec(fileName);
       const imageType: string = match ? `image/${match[1]}` : 'image';
-      const computedUri: string =
-        Platform.OS === 'android' ? uri : uri.replace('file://', '');
+
       data.append(
         'image',
         JSON.stringify({
-          uri: computedUri,
+          uri,
           type: imageType,
           name: fileName,
         }),
@@ -117,29 +101,66 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
     return undefined;
   };
 
+  const sendPicture = useCallback(async (formData: FormData) => {
+    return fetch('http://192.168.0.254:5000/api/search-ingredients', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+    });
+  }, []);
+
+  const pickImage = useCallback(async () => {
+    try {
+      const imagePickerResult: ImagePickerResult =
+        await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          base64: true,
+          allowsEditing: true,
+        });
+
+      if (imagePickerResult.cancelled) {
+        return;
+      }
+
+      const formData: FormData | undefined = createFormData(
+        imagePickerResult.uri,
+      );
+
+      if (formData) {
+        const result: any = await sendPicture(formData);
+        console.log(result.status);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }, [sendPicture]);
+
+  const handleCameraType = useCallback(() => {
+    setCameraType(
+      cameraType === Camera.Constants.Type.back
+        ? Camera.Constants.Type.front
+        : Camera.Constants.Type.back,
+    );
+  }, [cameraType]);
+
   const takePicture = async () => {
     try {
       const photo: CameraCapturedPicture | undefined =
         await camera?.takePictureAsync();
       if (photo) {
-        setPictureTaken(true);
-        const formData = createFormData(photo);
-        console.log('Sending Request...');
-        const result: Response = await fetch(
-          'http://192.168.1.47:5000/api/search-ingredients',
-          {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'content-type': 'multipart/form-data',
-            },
-          },
-        );
-        console.log('Response Received!');
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const json: any = await result.json();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        console.log(json.results);
+        // setPictureTaken(true);
+        const formData = createFormData(photo.uri);
+        if (formData) {
+          console.log('Sending Request...');
+          const result: Response = await sendPicture(formData);
+          console.log('Response Received!');
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          const json: any = await result.json();
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          console.log(json.results);
+        }
       }
     } catch (e) {
       console.log(e);
@@ -147,16 +168,12 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
   };
 
   // Reference: https://stackoverflow.com/questions/58634905/camera-preview-in-expo-is-distorted
-  const prepareRatio = async () => {
+  const prepareRatio = useCallback(async () => {
     let desiredRatio: string | null = '4:3'; // Start with the system default
-    // This issue only affects Android
     if (Platform.OS === 'android') {
       const ratios = await camera?.getSupportedRatiosAsync();
 
       if (ratios) {
-        // Calculate the width/height of each of the supported camera ratios
-        // These width/height are measured in landscape mode
-        // find the ratio that is closest to the screen ratio without going over
         const distances: RatioOptions = {};
         const realRatios: RatioOptions = {};
         let minDistance = null;
@@ -165,7 +182,6 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
           const parts = tempRatio.split(':');
           const realRatio = parseInt(parts[0], 10) / parseInt(parts[1], 10);
           realRatios[tempRatio] = realRatio;
-          // ratio can't be taller than screen, so we don't want an abs()
           const distance = screenRatio - realRatio;
           distances[tempRatio] = realRatio;
           if (minDistance == null) {
@@ -174,29 +190,24 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
             minDistance = ratio;
           }
         }
-        // set the best match
         desiredRatio = minDistance;
-        //  calculate the difference between the camera width and the screen height
         if (desiredRatio) {
           const remainder = Math.floor(
             (height - 85 - realRatios[desiredRatio] * width) / 2,
           );
-          // set the preview padding and preview ratio
           setImagePadding(remainder);
           setRatio(desiredRatio);
-          // Set a flag so we don't do this
-          // calculation each time the screen refreshes
           setIsRatioSet(true);
         }
       }
     }
-  };
+  }, [camera, height, ratio, screenRatio, width]);
 
-  const setCameraReady = async () => {
+  const setCameraReady = useCallback(async () => {
     if (!isRatioSet) {
       await prepareRatio();
     }
-  };
+  }, [isRatioSet, prepareRatio]);
 
   if (hasPermission === null) {
     return <View />;
@@ -211,74 +222,110 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
       {pictureTaken || imageSelected ? (
         <Loading />
       ) : (
-        <View style={styles.cameraContainer}>
-          {isFocussed && (
-            <Camera
-              style={{
-                flex: 1,
-                marginTop: imagePadding,
-                marginBottom: imagePadding,
-              }}
-              onCameraReady={setCameraReady}
-              ratio={ratio}
-              type={cameraType}
-              ref={ref => {
-                if (!ref) return;
-                setCamera(ref);
-              }}
-            >
-              <View
+        <>
+          <View style={styles.cameraContainer}>
+            {isFocussed && (
+              <Camera
                 style={{
                   flex: 1,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  margin: 20,
-                  backgroundColor: 'transparent',
+                }}
+                onCameraReady={setCameraReady}
+                ratio={ratio}
+                type={cameraType}
+                ref={ref => {
+                  if (!ref) return;
+                  setCamera(ref);
                 }}
               >
-                <TouchableOpacity
-                  onPress={pickImage}
+                <View
                   style={{
-                    alignSelf: 'flex-end',
-                    alignItems: 'center',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'row',
                     backgroundColor: 'transparent',
                   }}
                 >
-                  <Ionicons
-                    name="images-outline"
-                    style={{ color: '#fff', fontSize: 40 }}
+                  <View
+                    style={{
+                      alignSelf: 'flex-end',
+                      minHeight: 30,
+                      width,
+                      borderTopLeftRadius: 30,
+                      borderTopRightRadius: 30,
+                      backgroundColor: Colors[colorScheme].background,
+                    }}
                   />
-                </TouchableOpacity>
-                <TouchableOpacity
+                </View>
+                <View
                   style={{
-                    alignSelf: 'flex-end',
+                    width,
+                    height: imagePadding * 2,
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: 'transparent',
+                    paddingLeft: 35,
+                    paddingRight: 35,
+                    backgroundColor: Colors[colorScheme].background,
                   }}
-                  onPress={takePicture}
                 >
-                  <FontAwesome
-                    name="camera"
-                    style={{ color: '#fff', fontSize: 40 }}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    alignSelf: 'flex-end',
-                    alignItems: 'center',
-                    backgroundColor: 'transparent',
-                  }}
-                  onPress={handleCameraType}
-                >
-                  <MaterialCommunityIcons
-                    name="camera-switch"
-                    style={{ color: '#fff', fontSize: 40 }}
-                  />
-                </TouchableOpacity>
-              </View>
-            </Camera>
-          )}
-        </View>
+                  <TouchableOpacity
+                    onPress={pickImage}
+                    style={{
+                      alignItems: 'center',
+                      backgroundColor: 'transparent',
+                    }}
+                  >
+                    <Ionicons
+                      name="images"
+                      style={{ color: '#fff', fontSize: 40 }}
+                    />
+                  </TouchableOpacity>
+                  <View
+                    style={{
+                      backgroundColor: Colors[colorScheme].backgroundDarker,
+                      padding: 25,
+                      borderRadius: 45,
+                      shadowColor: '#000',
+                      shadowOffset: {
+                        width: 0,
+                        height: 6,
+                      },
+                      shadowOpacity: 0.39,
+                      shadowRadius: 8.3,
+                      elevation: 13,
+                    }}
+                  >
+                    <TouchableOpacity
+                      style={{
+                        alignItems: 'center',
+                      }}
+                      onPress={takePicture}
+                    >
+                      <FontAwesome
+                        name="camera"
+                        style={{ color: '#fff', fontSize: 40 }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <TouchableOpacity
+                    style={{
+                      alignItems: 'center',
+                      backgroundColor: 'transparent',
+                    }}
+                    onPress={handleCameraType}
+                  >
+                    <MaterialCommunityIcons
+                      name="camera-switch"
+                      style={{ color: '#fff', fontSize: 40 }}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </Camera>
+            )}
+          </View>
+        </>
       )}
     </>
   );
