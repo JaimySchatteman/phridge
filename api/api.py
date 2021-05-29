@@ -1,9 +1,11 @@
 import json
+from PIL import Image as PillowImage
+from io import BytesIO
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
-from clarifai_grpc.grpc.api.status import status_pb2, status_code_pb2
-from flask import Flask, request, render_template
-from flask_cors import CORS, cross_origin
+from clarifai_grpc.grpc.api.status import status_code_pb2
+from flask import Flask, request
+from flask_cors import CORS
 
 channel = ClarifaiChannel.get_grpc_channel()
 stub = service_pb2_grpc.V2Stub(channel)
@@ -11,6 +13,7 @@ metadata = (('authorization', 'Key 6c48b3b707844ce0898a00ef7ff57ee1'),)
 
 app = Flask(__name__)
 CORS(app)
+
 
 class Prediction:
     def __init__(self, name, score):
@@ -21,14 +24,18 @@ class Prediction:
         return {"name": self.name, "score": self.score}
 
 
-@app.route('/api/test', methods=['GET'])
-def test():
-    return 'test'
-
 @app.route('/api/search-ingredients', methods=['POST'])
 def search():
-    img = Image.open(request.files['image'])
-    print(img)
+    print('wattaaafaaaakkkk')
+    image = request.files['image']
+    print('hallo')
+    with PillowImage.open(image.stream) as i:
+        buffer = BytesIO()
+        i.save(buffer, format='JPEG')
+        file_bytes = buffer.getvalue()
+
+    print('image extracted')
+
     response = stub.PostModelOutputs(
         service_pb2.PostModelOutputsRequest(
             model_id="bd367be194cf45149e75f01d59f77ba7",
@@ -36,7 +43,7 @@ def search():
                 resources_pb2.Input(
                     data=resources_pb2.Data(
                         image=resources_pb2.Image(
-                            url="https://www.efsa.europa.eu/sites/default/files/styles/share_opengraph/public/2021-03/food-ingredients-packaging.jpg"
+                            base64=file_bytes
                         )
                     )
                 )
@@ -44,6 +51,8 @@ def search():
         ),
         metadata=metadata
     )
+    print(response)
+
     if response.status.code != status_code_pb2.SUCCESS:
         raise Exception("Post model outputs failed, status: " + response.status.description)
 
@@ -59,4 +68,4 @@ def search():
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1')
+    app.run(host='0.0.0.0')
