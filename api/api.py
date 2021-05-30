@@ -9,7 +9,7 @@ from flask_cors import CORS
 
 channel = ClarifaiChannel.get_grpc_channel()
 stub = service_pb2_grpc.V2Stub(channel)
-metadata = (('authorization', 'Key 6c48b3b707844ce0898a00ef7ff57ee1'),)
+metadata = (('authorization', 'Key c26806a710ac48f9a74e357cdbec5c90'),)
 
 app = Flask(__name__)
 CORS(app)
@@ -24,9 +24,16 @@ class Prediction:
         return {"name": self.name, "score": self.score}
 
 
+@app.route('/api/test', methods=['GET'])
+def test():
+    print(request.data)
+    return 'test', 200
+
+
 @app.route('/api/search-ingredients', methods=['POST'])
 def search():
-    print('wattaaafaaaakkkk')
+    print(request.files)
+    print(request.data)
     image = request.files['image']
     print('hallo')
     with PillowImage.open(image.stream) as i:
@@ -69,3 +76,4 @@ def search():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
+
