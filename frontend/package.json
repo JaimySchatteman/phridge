@@ -7,8 +7,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "eject": "expo eject",
-    "test": "jest --watchAll",
-    "prepare": "husky install"
+    "test": "jest --watchAll"
   },
   "jest": {
     "preset": "jest-expo"
@@ -21,6 +20,7 @@
     "@react-navigation/bottom-tabs": "5.11.2",
     "@react-navigation/native": "~5.8.10",
     "@react-navigation/stack": "~5.12.8",
+    "axios": "^0.21.1",
     "expo": "~41.0.1",
     "expo-asset": "~8.3.1",
     "expo-camera": "~11.0.2",
@@ -31,6 +31,7 @@
     "expo-splash-screen": "~0.10.2",
     "expo-status-bar": "~1.0.4",
     "expo-web-browser": "~9.1.0",
+    "mime": "^2.5.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-41.0.0.tar.gz",
@@ -43,6 +44,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
+    "@types/mime": "^2.0.3",
     "@types/react": "~16.9.35",
     "@types/react-native": "~0.63.2",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
@@ -56,18 +58,10 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^1.7.0",
-    "husky": ">=6",
     "jest-expo": "~41.0.0",
     "lint-staged": ">=10",
     "prettier": "^2.3.0",
-    "typescript": "~4.0.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": "eslint"
+    "typescript": "~4.0.0",
+    "uuid": "^8.3.2"
   }
 }

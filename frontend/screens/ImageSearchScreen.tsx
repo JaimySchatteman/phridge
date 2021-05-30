@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Alert,
   Dimensions,
+  Image,
 } from 'react-native';
 import { FC, useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { Camera, CameraCapturedPicture } from 'expo-camera';
@@ -19,6 +20,7 @@ import { NavigationScreenComponent } from 'react-navigation';
 import { useIsFocused } from '@react-navigation/native';
 import { ImagePickerResult } from 'expo-image-picker';
 import { ImageInfo } from 'expo-image-picker/build/ImagePicker.types';
+import mime from 'mime';
 import Loading from '../components/Loading';
 import { View, Text } from '../components/Themed';
 import Colors from '../constants/Colors';
@@ -56,7 +58,7 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
 
   const askForCameraPermission = useCallback(async () => {
     const { status } = await Camera.requestPermissionsAsync();
-    console.log(status);
+    console.log(`Camera perm: ${status}`);
     setHasPermission(status === 'granted');
   }, []);
 
@@ -64,6 +66,8 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
     if (Platform.OS !== 'web') {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
+      console.log(`Medialibrary status: ${status}`);
+
       if (status !== 'granted') {
         Alert.alert(
           'Sorry, we need camera roll permissions to make this work!',
@@ -77,36 +81,32 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
     askForCameraRollPermission();
   }, [askForCameraPermission, askForCameraRollPermission]);
 
-  const createFormData = (uri: string): FormData | undefined => {
-    const data = new FormData();
-    console.log(uri);
+  const createFormData = useCallback((uri: string): FormData => {
+    const newImageUri = `file:///${uri.split('file:/').join('')}`;
     const fileName = uri.split('/').pop();
-    console.log('test');
 
+    const formData = new FormData();
     if (fileName) {
       const match = /\.(\w+)$/.exec(fileName);
       const imageType: string = match ? `image/${match[1]}` : 'image';
 
-      data.append(
-        'image',
-        JSON.stringify({
-          uri,
-          type: imageType,
-          name: fileName,
-        }),
-      );
-
-      return data;
+      formData.append('image', {
+        uri: newImageUri,
+        type: mime.getType(newImageUri),
+        name: newImageUri.split('/').pop(),
+      });
     }
-    return undefined;
-  };
+
+    return formData;
+  }, []);
 
   const sendPicture = useCallback(async (formData: FormData) => {
+    console.log(formData);
     return fetch('http://192.168.0.254:5000/api/search-ingredients', {
       method: 'POST',
       body: formData,
       headers: {
-        'content-type': 'multipart/form-data',
+        'Content-Type': 'multipart/form-data',
       },
     });
   }, []);
@@ -116,17 +116,13 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
       const imagePickerResult: ImagePickerResult =
         await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          base64: true,
-          allowsEditing: true,
         });
 
       if (imagePickerResult.cancelled) {
         return;
       }
 
-      const formData: FormData | undefined = createFormData(
-        imagePickerResult.uri,
-      );
+      const formData: FormData = createFormData(imagePickerResult.uri);
 
       if (formData) {
         const result: any = await sendPicture(formData);
@@ -135,7 +131,7 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
     } catch (e) {
       console.log(e);
     }
-  }, [sendPicture]);
+  }, [createFormData, sendPicture]);
 
   const handleCameraType = useCallback(() => {
     setCameraType(
@@ -149,8 +145,9 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
     try {
       const photo: CameraCapturedPicture | undefined =
         await camera?.takePictureAsync();
+
       if (photo) {
-        // setPictureTaken(true);
+        // setPictureTaken(true);;
         const formData = createFormData(photo.uri);
         if (formData) {
           console.log('Sending Request...');
@@ -225,37 +222,39 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
         <>
           <View style={styles.cameraContainer}>
             {isFocussed && (
-              <Camera
-                style={{
-                  flex: 1,
-                }}
-                onCameraReady={setCameraReady}
-                ratio={ratio}
-                type={cameraType}
-                ref={ref => {
-                  if (!ref) return;
-                  setCamera(ref);
-                }}
-              >
-                <View
+              <>
+                <Camera
                   style={{
                     flex: 1,
-                    display: 'flex',
-                    flexDirection: 'row',
-                    backgroundColor: 'transparent',
+                  }}
+                  onCameraReady={setCameraReady}
+                  ratio={ratio}
+                  type={cameraType}
+                  ref={ref => {
+                    if (!ref) return;
+                    setCamera(ref);
                   }}
                 >
                   <View
                     style={{
-                      alignSelf: 'flex-end',
-                      minHeight: 30,
-                      width,
-                      borderTopLeftRadius: 30,
-                      borderTopRightRadius: 30,
-                      backgroundColor: Colors[colorScheme].background,
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'row',
+                      backgroundColor: 'transparent',
                     }}
-                  />
-                </View>
+                  >
+                    <View
+                      style={{
+                        alignSelf: 'flex-end',
+                        minHeight: 30,
+                        width,
+                        borderTopLeftRadius: 30,
+                        borderTopRightRadius: 30,
+                        backgroundColor: Colors[colorScheme].background,
+                      }}
+                    />
+                  </View>
+                </Camera>
                 <View
                   style={{
                     width,
@@ -322,7 +321,7 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
                     />
                   </TouchableOpacity>
                 </View>
-              </Camera>
+              </>
             )}
           </View>
         </>
