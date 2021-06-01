@@ -86,7 +86,7 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
                   width={width}
                 />
                 <CameraButtons
-                  handleImageSelected={handlePictureTaken}
+                  handleImageSelected={handleImageSelected}
                   handlePictureTaken={handlePictureTaken}
                   camera={camera}
                   width={width}

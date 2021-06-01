@@ -43,6 +43,11 @@ const ImageSearchNavigator = () => {
         component={ImageSearchScreen}
         options={{ headerShown: false }}
       />
+      <Image.Screen
+        name="AdjustIngredients"
+        component={TextSearchScreen}
+        options={{ headerShown: false }}
+      />
     </Image.Navigator>
   );
 };

@@ -1,27 +1,16 @@
 import * as React from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  ImageBackground,
-  ScrollView,
-  Button,
-} from 'react-native';
-import { SearchBar } from 'react-native-elements';
-import { useCallback, useState } from 'react';
-import { List, SwipeAction } from '@ant-design/react-native';
+import { StyleSheet, ScrollView } from 'react-native';
+import { FC, useCallback, useState } from 'react';
+import { Button, SwipeAction } from '@ant-design/react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { SwipeActionProps } from '@ant-design/react-native/es/swipe-action';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
-import { Swipeable } from 'react-native-gesture-handler';
+import { NavigationScreenComponent } from 'react-navigation';
 import { Text, View } from '../../global/style/Themed';
 import useColorScheme from '../../hooks/useColorScheme';
 import IngredientBackground from './IngredientBackground';
 import Colors from '../../constants/Colors';
 import useCamera from '../imageSearch/useCamera';
 import IngredientSearchBar from './IngredientSearchBar';
-
-const { Item } = List;
 
 const styles = StyleSheet.create({
   container: {
@@ -38,131 +27,242 @@ const styles = StyleSheet.create({
 export interface IngredientSuggestion {
   id: number;
   name: string;
-  isChecked: boolean;
+  isChecked?: boolean;
 }
 
 export interface IngredientPrediction extends IngredientSuggestion {
   accuracy: number;
 }
 
-const TextSearchScreen = () => {
-  const [extractedIngredients, setExtractendIngredients] = useState<
-    IngredientPrediction[] | undefined
-  >([
-    {
-      id: 1,
-      name: 'carrot',
-      accuracy: 0.3,
-      isChecked: false,
-    },
-  ]);
-  const { width } = useCamera();
-  const colorscheme = useColorScheme();
+export type TextSearchScreenParams = {
+  afterImageSearch: boolean;
+  extractedIngredients: IngredientPrediction[];
+};
 
-  const toggleCheckIngredient = useCallback(
-    (idToToggle: number) => {
-      const currentIngredients: IngredientPrediction[] = [
-        ...extractedIngredients,
-      ];
-      const ingredientToToggle = currentIngredients.findIndex(
-        ({ id }: IngredientPrediction) => {
-          return idToToggle === id;
-        },
-      );
-    },
-    [extractedIngredients],
-  );
+const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
+  ({ route, navigation }) => {
+    const { afterImageSearch, extractedIngredients }: TextSearchScreenParams =
+      route.params;
+    const [ingredients, setIngredients] =
+      useState<IngredientPrediction[] | undefined>();
+    const colorscheme = useColorScheme();
 
-  const removeIngredient = useCallback(
-    (idToRemove: number) => {
-      if (extractedIngredients) {
-        const currentIngredients: IngredientPrediction[] = [
-          ...extractedIngredients,
-        ];
-        const newIngredients = currentIngredients.filter(
-          ({ id }: IngredientPrediction) => {
-            return idToRemove !== id;
-          },
-        );
+    console.log(extractedIngredients);
+
+    const toggleCheckIngredient = useCallback(
+      (idToToggle: number) => {
+        console.log(idToToggle);
+        if (ingredients && ingredients?.length > 0) {
+          const currentIngredients: IngredientPrediction[] = [...ingredients];
+          const ingredientToToggleIndex: number | undefined =
+            currentIngredients.findIndex(({ id }: IngredientPrediction) => {
+              return idToToggle === id;
+            });
+          if (ingredientToToggleIndex !== undefined) {
+            currentIngredients[ingredientToToggleIndex].isChecked =
+              !currentIngredients[ingredientToToggleIndex].isChecked;
+            setIngredients(currentIngredients);
+          }
+        }
+      },
+      [ingredients],
+    );
+
+    const removeIngredient = useCallback(
+      (idToRemove: number) => {
+        if (ingredients) {
+          const currentIngredients: IngredientPrediction[] = [...ingredients];
+          const newIngredients = currentIngredients.filter(
+            ({ id }: IngredientPrediction) => {
+              return idToRemove !== id;
+            },
+          );
+          setIngredients(newIngredients);
+        }
+      },
+      [ingredients],
+    );
+
+    const checkIfIngredientsAreChecked = useCallback((): boolean => {
+      if (ingredients) {
+        console.log(ingredients);
+
+        return ingredients.some(({ isChecked }: IngredientPrediction) => {
+          return isChecked;
+        });
       }
-    },
-    [extractedIngredients],
-  );
+      return false;
+    }, [ingredients]);
 
-  const getRight = useCallback(
-    (id: number): any => {
-      return [<Button onPress={removeIngredient(id)}>SDFQSD</Button>];
-    },
-    [removeIngredient],
-  );
-
-  return (
-    <View style={styles.container}>
-      <IngredientBackground />
-      <IngredientSearchBar />
-      <View
-        style={[
-          styles.bottomHalfContainer,
-          {
-            backgroundColor:
-              colorscheme === 'dark'
-                ? Colors[colorscheme].backgroundDarker
-                : Colors[colorscheme].veryLightGrey,
-          },
-        ]}
-      >
-        <ScrollView
-          style={{
-            marginTop: 55,
-            marginLeft: 20,
-            marginRight: 20,
-            borderRadius: 5,
-          }}
+    return (
+      <View style={styles.container}>
+        <IngredientBackground afterImageSearch={afterImageSearch} />
+        <IngredientSearchBar />
+        <View
+          style={[
+            styles.bottomHalfContainer,
+            {
+              backgroundColor:
+                colorscheme === 'dark'
+                  ? Colors[colorscheme].backgroundDarker
+                  : Colors[colorscheme].veryLightGrey,
+            },
+          ]}
         >
-          {extractedIngredients && extractedIngredients.length > 0 ? (
-            <List style={{ borderRadius: 7 }}>
-              {extractedIngredients.map(
+          <ScrollView
+            style={{
+              paddingTop: 65,
+              paddingLeft: 20,
+              paddingRight: 20,
+              borderRadius: 5,
+            }}
+          >
+            {ingredients && ingredients.length > 0 ? (
+              ingredients.map(
                 ({ id, name, accuracy, isChecked }: IngredientPrediction) => {
                   return (
-                    <Swipeable
-                      rightButtons={getRight(id)}
-                      onOpen={() => console.log('open')}
-                      onClose={() => console.log('close')}
+                    <SwipeAction
+                      autoClose
+                      style={{
+                        backgroundColor:
+                          colorscheme === 'dark'
+                            ? Colors.light.normalGrey
+                            : Colors.light.background,
+                        borderRadius: 12,
+                        height: 66,
+                        elevate: 6,
+                        marginBottom: 10,
+                      }}
+                      right={[
+                        {
+                          text: (
+                            <AntDesign name="delete" size={22} color="white" />
+                          ),
+                          onPress: () => removeIngredient(id),
+                          style: { backgroundColor: 'red' },
+                        },
+                      ]}
                     >
                       <View
                         style={{
                           display: 'flex',
                           flexDirection: 'row',
-                          backgroundColor: Colors[colorscheme].normalGrey,
+                          backgroundColor:
+                            colorscheme === 'dark'
+                              ? Colors.light.normalGrey
+                              : Colors.light.background,
+                          height: 66,
                         }}
                       >
                         <BouncyCheckbox
-                          style={{ marginLeft: 10 }}
+                          size={32}
+                          style={{ marginLeft: 15 }}
+                          fillColor={Colors.light.text}
+                          iconStyle={{ borderColor: Colors.light.text }}
                           onPress={() => {
                             toggleCheckIngredient(id);
                           }}
                         />
-                        <Item
-                          key={id}
+                        <View
                           style={{
-                            width: '100%',
-                            backgroundColor: 'transparent',
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            backgroundColor:
+                              colorscheme === 'dark'
+                                ? Colors.light.normalGrey
+                                : Colors.light.background,
+                            height: 66,
                           }}
                         >
-                          {name}
-                        </Item>
+                          <Text
+                            style={{
+                              color:
+                                colorscheme === 'dark'
+                                  ? Colors.light.background
+                                  : Colors.dark.backgroundDarker,
+                              padding: 12,
+                              marginTop: 4,
+                              fontSize: 22,
+                            }}
+                          >
+                            {name[0].toUpperCase() + name.slice(1, name.length)}
+                          </Text>
+
+                          <Text
+                            style={{
+                              color:
+                                colorscheme === 'dark'
+                                  ? Colors.light.lightGrey
+                                  : Colors.dark.backgroundDarker,
+                              padding: 12,
+                              marginTop: 12,
+                              marginRight: 15,
+                              fontSize: 12,
+                            }}
+                          >
+                            {accuracy * 100}% certain
+                          </Text>
+                        </View>
                       </View>
-                    </Swipeable>
+                    </SwipeAction>
                   );
                 },
-              )}
-            </List>
-          ) : (
-            <Text>Nothing to show</Text>
-          )}
-        </ScrollView>
+              )
+            ) : (
+              <>
+                <Text
+                  style={{
+                    color:
+                      colorscheme === 'dark'
+                        ? Colors.light.background
+                        : Colors.dark.backgroundDarker,
+                    marginTop: 24,
+
+                    textAlign: 'center',
+                    fontSize: 24,
+                  }}
+                >
+                  Nothing to show
+                </Text>
+                <Text
+                  style={{
+                    color:
+                      colorscheme === 'dark'
+                        ? Colors.light.lightGrey
+                        : Colors.dark.backgroundDarker,
+                    textAlign: 'center',
+                  }}
+                >
+                  Please add ingredients
+                </Text>
+              </>
+            )}
+          </ScrollView>
+        </View>
+        <Button
+          type="primary"
+          disabled={!checkIfIngredientsAreChecked()}
+          style={{
+            flex: 1,
+            position: 'absolute',
+            bottom: 20,
+            left: 20,
+            right: 20,
+            height: 50,
+            borderRadius: 25,
+            zIndex: 999,
+            backgroundColor: Colors.light.tint,
+            borderColor: Colors.light.tint,
+          }}
+          onPress={() => {
+            console.log('qsdfqsdf');
+          }}
+        >
+          Search Recipes
+        </Button>
       </View>
-    </View>
-  );
-};
+    );
+  };
 export default TextSearchScreen;

@@ -4,21 +4,15 @@
     <list default="true" id="9aaeea2a-6e4a-4e95-89ad-11a2ec10e826" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/components/EditScreenInfo.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/components/Loading.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/components/StyledText.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/components/Themed.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/components/__tests__/StyledText-test.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/constants/Colors.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/constants/Colors.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/navigation/BottomTabNavigator.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/navigation/LinkingConfiguration.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/navigation/index.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/screens/ImageSearchScreen.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/screens/TextSearchScreen.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/types.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/global/navigation/BottomTabNavigator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/global/navigation/BottomTabNavigator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/global/navigation/LinkingConfiguration.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/global/navigation/LinkingConfiguration.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/screens/imageSearch/CameraButtons.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/screens/imageSearch/CameraButtons.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/screens/imageSearch/ImageSearchScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/screens/imageSearch/ImageSearchScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/screens/textSearch/IngredientBackground.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/screens/textSearch/IngredientBackground.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/screens/textSearch/TextSearchScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/screens/textSearch/TextSearchScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/types.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/types.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/yarn-error.log" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/yarn-error.log" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,7 +53,7 @@
       <workItem from="1622453542146" duration="704000" />
       <workItem from="1622454641074" duration="1953000" />
       <workItem from="1622491731128" duration="624000" />
-      <workItem from="1622541887971" duration="627000" />
+      <workItem from="1622541887971" duration="1725000" />
     </task>
     <servers />
   </component>

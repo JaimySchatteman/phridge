@@ -15,7 +15,9 @@ import useColorScheme from '../../hooks/useColorScheme';
 import { View } from '../../global/style/Themed';
 import useImageUpload from './useImageUpload';
 import useCamera from './useCamera';
-import TextSearchScreen from '../textSearch/TextSearchScreen';
+import TextSearchScreen, {
+  TextSearchScreenParams,
+} from '../textSearch/TextSearchScreen';
 import { RootStackParamList } from '../../types';
 
 type IngredientPrediction = {
@@ -51,21 +53,25 @@ const CameraButtons: FC<CameraButtonsProps> = ({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
         });
       if (imagePickerResult.cancelled) return;
-
+      handleImageSelected();
       const formData: FormData = createFormData(imagePickerResult.uri);
       const results: Response = await sendPicture(formData);
-      const foundIngredients: IngredientPrediction[] = await results.json();
-      console.log(foundIngredients);
+      const extractedIngredients: IngredientPrediction[] = await results.json();
+      console.log(extractedIngredients);
       navigation.navigate('Root', {
-        screen: 'TextSearch',
+        screen: 'ImageSearch',
         params: {
-          screen: 'TextSearchScreen',
+          screen: 'AdjustIngredients',
+          params: {
+            afterImageSearch: true,
+            extractedIngredients,
+          },
         },
       });
     } catch (e) {
       console.log(e);
     }
-  }, [createFormData, navigation, sendPicture]);
+  }, [createFormData, handleImageSelected, navigation, sendPicture]);
 
   const takePicture = async () => {
     try {
@@ -78,13 +84,17 @@ const CameraButtons: FC<CameraButtonsProps> = ({
       const result: Response = await sendPicture(formData);
       console.log('Response Received!');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const json: IngredientPrediction[] = await result.json();
+      const extractedIngredients: IngredientPrediction[] = await result.json();
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      console.log(json);
+      // console.log(extractedIngredients);
       navigation.navigate('Root', {
-        screen: 'TextSearch',
+        screen: 'ImageSearch',
         params: {
-          screen: 'TextSearchScreen',
+          screen: 'AdjustIngredients',
+          params: {
+            afterImageSearch: true,
+            extractedIngredients,
+          },
         },
       });
     } catch (e) {
@@ -122,10 +132,7 @@ const CameraButtons: FC<CameraButtonsProps> = ({
         <Ionicons
           name="images"
           style={{
-            color:
-              colorScheme === 'dark'
-                ? '#fff'
-                : Colors[colorScheme].backgroundDarker,
+            color: colorScheme === 'dark' ? '#fff' : Colors[colorScheme].tint,
             fontSize: 40,
           }}
         />

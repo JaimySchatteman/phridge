@@ -6,9 +6,13 @@ import Colors from '../../constants/Colors';
 import useCamera from '../imageSearch/useCamera';
 import useColorScheme from '../../hooks/useColorScheme';
 
-type ComponentType = {};
+type IngredientBackgroundProps = {
+  afterImageSearch?: boolean;
+};
 
-const IngredientBackground: FC = () => {
+const IngredientBackground: FC<IngredientBackgroundProps> = ({
+  afterImageSearch = false,
+}: IngredientBackgroundProps) => {
   const { width } = useCamera();
   const colorscheme = useColorScheme();
 
@@ -27,16 +31,17 @@ const IngredientBackground: FC = () => {
       >
         <Text
           style={{
-            // marginTop: ,
             color: 'white',
             fontSize: 30,
             fontWeight: '700',
           }}
         >
-          Add the ingredients
+          {afterImageSearch ? 'Select or remove' : 'Add the ingredients'}
         </Text>
         <Text style={{ color: Colors[colorscheme].lightGrey, fontSize: 16 }}>
-          you want to include in the search
+          {afterImageSearch
+            ? 'the ingredients you want to include'
+            : ' you want to include in the search'}
         </Text>
       </View>
     </ImageBackground>

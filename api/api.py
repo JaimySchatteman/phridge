@@ -16,12 +16,13 @@ CORS(app)
 
 
 class Prediction:
-    def __init__(self, name, score):
+    def __init__(self, name, accuracy, is_checked):
         self.name = name
-        self.score = score
+        self.accuracy = accuracy
+        self.isChecked = is_checked
 
     def to_dict(self):
-        return {"name": self.name, "score": self.score}
+        return {"name": self.name, "accuarcy": self.accuracy, "isChecked": self.accuracy > 0.85}
 
 
 @app.route('/api/test', methods=['GET'])
@@ -62,7 +63,7 @@ def search():
 
     predictions = []
     for concept in output.data.concepts:
-        predictions.append(Prediction(concept.name, concept.value))
+        predictions.append(Prediction(concept.name, concept.value, False))
 
     results = [obj.to_dict() for obj in predictions]
 
@@ -71,4 +72,3 @@ def search():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
-

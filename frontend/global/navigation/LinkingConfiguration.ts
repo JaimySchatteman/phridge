@@ -15,6 +15,7 @@ export default {
           ImageSearch: {
             screens: {
               ImageSearchScreen: 'ImageSearchScreen',
+              AdjustIngredients: 'AdjustIngredients',
             },
           },
           TextSearch: {
