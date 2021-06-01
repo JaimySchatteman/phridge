@@ -32,16 +32,11 @@ def test():
 
 @app.route('/api/search-ingredients', methods=['POST'])
 def search():
-    print(request.files)
-    print(request.data)
     image = request.files['image']
-    print('hallo')
     with PillowImage.open(image.stream) as i:
         buffer = BytesIO()
         i.save(buffer, format='JPEG')
         file_bytes = buffer.getvalue()
-
-    print('image extracted')
 
     response = stub.PostModelOutputs(
         service_pb2.PostModelOutputsRequest(

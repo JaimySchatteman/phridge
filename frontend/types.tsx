@@ -13,10 +13,10 @@ export type BottomTabParamList = {
   TextSearch: undefined;
 };
 
-export type TabOneParamList = {
+export type ImageSearchParamList = {
   ImageSearchScreen: undefined;
 };
 
-export type TabTwoParamList = {
+export type TextSearchParamList = {
   TextSearchScreen: undefined;
 };
