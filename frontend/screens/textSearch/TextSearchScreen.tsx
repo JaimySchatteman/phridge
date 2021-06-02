@@ -169,7 +169,6 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
     }, [ingredients]);
 
     const searchRecipes = useCallback(async () => {
-      console.log('test');
       if (ingredients) {
         let checkedIngredientNames: string[] = [];
         ingredients.forEach(({ name, isChecked }: Ingredient) => {

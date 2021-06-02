@@ -1,4 +1,5 @@
-from flask import Flask, request
+import os
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from PIL import Image as PillowImage
 from io import BytesIO
@@ -8,12 +9,24 @@ from clarifai_grpc.grpc.api.status import status_code_pb2
 import uuid
 import json
 import requests
+from flask_jwt_extended import create_access_token, JWTManager, jwt_required
+import pymongo
 
 channel = ClarifaiChannel.get_grpc_channel()
 stub = service_pb2_grpc.V2Stub(channel)
-metadata = (("authorization", "Key c26806a710ac48f9a74e357cdbec5c90"),)
+metadata = (("authorization", os.getenv("CLARIFY_KEY")),)
 
 app = Flask(__name__)
+
+
+'''client = pymongo.MongoClient(os.getenv("MONGO_ADDR"))
+db = client["food_search"]
+user = db["users"]'''
+
+jwt = JWTManager(app)
+
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET")
+
 CORS(app)
 
 
@@ -91,7 +104,7 @@ autocompleteSuffix: str = "food/ingredients/autocomplete"
 recipeSearchSuffix: str = "recipes/findByIngredients"
 
 headers = {
-    "x-rapidapi-key": "b620394a8emshf08053c74d069b7p12fb7cjsne38c5e470d00",
+    "x-rapidapi-key": os.getenv("RAPID_API_KEY"),
     "x-rapidapi-host": "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
 }
 
@@ -123,6 +136,38 @@ def search_recipes():
     results = [obj.to_dict() for obj in recipes]
     return json.dumps({"results": results}), 200
 
+'''
+@app.route("/register", methods=["POST"])
+def register():
+    email = request.form["email"]
+    test = user.find_one({"email": email})
+    if test:
+        return jsonify(message="User Already Exist"), 409
+    else:
+        first_name = request.form["first_name"]
+        last_name = request.form["last_name"]
+        password = request.form["password"]
+        user_info = dict(first_name=first_name, last_name=last_name, email=email, password=password)
+        user.insert_one(user_info)
+        return jsonify(message="User added sucessfully"), 201
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    if request.is_json:
+        email = request.json["email"]
+        password = request.json["password"]
+    else:
+        email = request.form["email"]
+        password = request.form["password"]
+
+    test = user.find_one({"email": email, "password": password})
+    if test:
+        access_token = create_access_token(identity=email)
+        return jsonify(message="Login Succeeded!", access_token=access_token), 201
+    else:
+        return jsonify(message="Bad Email or Password"), 401
+'''
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", debug=True)
