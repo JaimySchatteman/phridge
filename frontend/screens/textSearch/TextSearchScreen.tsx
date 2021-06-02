@@ -1,16 +1,19 @@
 import * as React from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import { FC, useCallback, useEffect, useState } from 'react';
-import { Button, SwipeAction } from '@ant-design/react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { Button, SwipeAction, Toast } from '@ant-design/react-native';
+import { AntDesign, Feather } from '@expo/vector-icons';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import { NavigationScreenComponent } from 'react-navigation';
+import { useNavigation } from '@react-navigation/native';
 import { Text, View } from '../../global/style/Themed';
 import useColorScheme from '../../hooks/useColorScheme';
-import IngredientBackground from './IngredientBackground';
+import ImageBannerBackground from './ImageBannerBackground';
 import Colors from '../../constants/Colors';
-import IngredientSearchBar from './IngredientSearchBar';
+import IngredientSearchBar, { ResultArray } from './IngredientSearchBar';
 import useCamera from '../imageSearch/useCamera';
+import { Recipe } from '../RecipeScreen/RecipeScreen';
+import ingredientBackground from '../../assets/images/ingredients.jpg';
 
 const styles = StyleSheet.create({
   container: {
@@ -26,13 +29,13 @@ const styles = StyleSheet.create({
     paddingTop: 65,
     paddingLeft: 25,
     paddingRight: 25,
-    borderRadius: 5,
+    borderRadius: 25,
   },
   swipeAction: {
     borderRadius: 12,
     height: 66,
     elevation: 6,
-    marginBottom: 10,
+    marginBottom: 18,
   },
   listItem: {
     display: 'flex',
@@ -78,9 +81,23 @@ export type TextSearchScreenParams = {
 const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
   ({ route }) => {
     const [isAfterImageSearch, setAfterImageSearch] = useState<boolean>();
-    const [ingredients, setIngredients] = useState<Ingredient[] | undefined>();
+    const [ingredients, setIngredients] = useState<Ingredient[] | undefined>([
+      {
+        id: 'qsdfqs',
+        name: 'cucumber',
+      },
+      {
+        id: 'carrot',
+        name: 'carrot',
+      },
+      {
+        id: 'qsdfqsdqs',
+        name: 'tomato',
+      },
+    ]);
     const colorscheme = useColorScheme();
     const { screenWidth, screenHeight } = useCamera();
+    const navigation = useNavigation();
 
     useEffect(() => {
       if (route.params && route.params.extractedIngredients) {
@@ -94,12 +111,17 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
 
     const handleAddToIngredients = useCallback(
       (ingredient: Ingredient): void => {
-        console.log(ingredient);
         if (ingredients) {
+          const inIngredients = ingredients.some(({ name }: Ingredient) => {
+            return name === ingredient.name;
+          });
+          if (inIngredients) return;
           const newIngredients = [ingredient, ...ingredients];
-          return setIngredients(newIngredients);
+          setIngredients(newIngredients);
+        } else {
+          setIngredients([ingredient]);
         }
-        return setIngredients([ingredient]);
+        Toast.success('Added ingredient', 0.5);
       },
       [ingredients],
     );
@@ -146,9 +168,56 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
       return false;
     }, [ingredients]);
 
+    const searchRecipes = useCallback(async () => {
+      console.log('test');
+      if (ingredients) {
+        let checkedIngredientNames: string[] = [];
+        ingredients.forEach(({ name, isChecked }: Ingredient) => {
+          if (isChecked) {
+            checkedIngredientNames = [...checkedIngredientNames, name];
+          }
+        });
+        const response = await fetch(
+          'http://192.168.0.254:5000/api/search-recipes',
+          {
+            method: 'POST',
+            body: JSON.stringify({ ingredients: checkedIngredientNames }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+        const { results }: ResultArray = await response.json();
+        const foundRecipes: Recipe[] = results as Recipe[];
+        console.log(foundRecipes);
+        navigation.navigate('Root', {
+          screen: isAfterImageSearch ? 'ImageSearch' : 'TextSearch',
+          params: {
+            screen: 'ViewRecipes',
+            params: {
+              foundRecipes,
+            },
+          },
+        });
+
+        console.log(checkedIngredientNames);
+      }
+    }, [ingredients, isAfterImageSearch, navigation]);
+
     return (
       <View style={styles.container}>
-        <IngredientBackground afterImageSearch={isAfterImageSearch} />
+        <ImageBannerBackground
+          displayBackButton={isAfterImageSearch}
+          image={ingredientBackground}
+          headerText={
+            isAfterImageSearch ? 'Select or remove' : 'Add the ingredients'
+          }
+          subText={
+            isAfterImageSearch
+              ? 'the ingredients you want to include'
+              : ' you want to include in the search'
+          }
+        />
         <IngredientSearchBar handleAddToIngredients={handleAddToIngredients} />
         <View
           style={[
@@ -171,6 +240,7 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
                 ({ id, name, accuracy, isChecked }: Ingredient) => {
                   return (
                     <SwipeAction
+                      key={id}
                       autoClose
                       style={[
                         styles.swipeAction,
@@ -184,7 +254,7 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
                       right={[
                         {
                           text: (
-                            <AntDesign name="delete" size={22} color="white" />
+                            <Feather name="trash-2" size={24} color="white" />
                           ),
                           onPress: () => removeIngredient(id),
                           style: { backgroundColor: 'red' },
@@ -225,6 +295,7 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
                           ]}
                         >
                           <Text
+                            numberOfLines={1}
                             style={{
                               color:
                                 colorscheme === 'dark'
@@ -313,7 +384,7 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
               backgroundColor: Colors.light.text,
             }}
             onPress={() => {
-              console.log('qsdfqsdf');
+              searchRecipes();
             }}
           >
             Search Recipes

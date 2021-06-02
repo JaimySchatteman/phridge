@@ -5,12 +5,18 @@
       <change afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/screens/imageSearch/CameraButtons.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/screens/imageSearch/CameraButtons.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/screens/imageSearch/CustomCamera.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/screens/imageSearch/CustomCamera.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/global/Loading.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/global/Loading.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/global/navigation/BottomTabNavigator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/global/navigation/BottomTabNavigator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/global/navigation/LinkingConfiguration.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/global/navigation/LinkingConfiguration.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/global/navigation/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/global/navigation/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/global/style/StyledText.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/global/style/StyledText.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/screens/imageSearch/ImageSearchScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/screens/imageSearch/ImageSearchScreen.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/screens/imageSearch/useCamera.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/screens/imageSearch/useCamera.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/screens/textSearch/IngredientBackground.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/screens/textSearch/IngredientBackground.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/screens/textSearch/IngredientBackground.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/screens/textSearch/IngredientSearchBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/screens/textSearch/IngredientSearchBar.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../frontend/screens/textSearch/TextSearchScreen.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/screens/textSearch/TextSearchScreen.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/types.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/types.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +57,7 @@
       <workItem from="1622453542146" duration="704000" />
       <workItem from="1622454641074" duration="1953000" />
       <workItem from="1622491731128" duration="624000" />
-      <workItem from="1622541887971" duration="17014000" />
+      <workItem from="1622541887971" duration="26280000" />
     </task>
     <servers />
   </component>

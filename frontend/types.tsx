@@ -16,8 +16,10 @@ export type BottomTabParamList = {
 export type ImageSearchParamList = {
   ImageSearchScreen: undefined;
   AdjustIngredients: undefined;
+  ViewRecipes: undefined;
 };
 
 export type TextSearchParamList = {
   TextSearchScreen: undefined;
+  ViewRecipes: undefined;
 };

@@ -7,6 +7,7 @@ import { Text } from '../../global/style/Themed';
 import useCamera from '../imageSearch/useCamera';
 import useColorScheme from '../../hooks/useColorScheme';
 import { Ingredient } from './TextSearchScreen';
+import { Recipe } from '../RecipeScreen/RecipeScreen';
 
 const styles = StyleSheet.create({
   searchbarContainer: {
@@ -22,6 +23,7 @@ const styles = StyleSheet.create({
   },
   inputStyle: {
     height: 50,
+    fontSize: 16,
     marginTop: -4,
     marginLeft: 10,
   },
@@ -42,7 +44,7 @@ const styles = StyleSheet.create({
 });
 
 export type ResultArray = {
-  results: Ingredient[];
+  results: Ingredient[] | Recipe[];
 };
 
 type IngredientSearchBarProps = {
@@ -80,7 +82,6 @@ const IngredientSearchBar: FC<IngredientSearchBarProps> = ({
 
   const handleSuggestionPress = useCallback(
     (newIngredient: Ingredient) => {
-      console.log('pressed');
       setQuery('');
       handleAddToIngredients(newIngredient);
     },

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Animated, Easing, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { WhiteSpace } from '@ant-design/react-native';
+import { FC } from 'react';
 import { View, Text } from './style/Themed';
 
 const styles = StyleSheet.create({
@@ -13,7 +14,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const Loading = () => {
+const Loading: FC = () => {
   const spinValue = new Animated.Value(0);
 
   Animated.loop(

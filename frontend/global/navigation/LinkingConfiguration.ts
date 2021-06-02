@@ -1,9 +1,3 @@
-/**
- * Learn more about deep linking with React Navigation
- * https://reactnavigation.org/docs/deep-linking
- * https://reactnavigation.org/docs/configuring-links
- */
-
 import * as Linking from 'expo-linking';
 
 export default {
@@ -16,11 +10,13 @@ export default {
             screens: {
               ImageSearchScreen: 'ImageSearchScreen',
               AdjustIngredients: 'AdjustIngredients',
+              ViewRecipes: 'ViewRecipes',
             },
           },
           TextSearch: {
             screens: {
               TextSearchScreen: 'TextSearchScreen',
+              ViewRecipes: 'ViewRecipes',
             },
           },
         },

@@ -1,19 +1,28 @@
 import React, { FC } from 'react';
-import { ImageBackground, TouchableOpacity } from 'react-native';
+import {
+  ImageBackground,
+  ImagePropsBase,
+  TouchableOpacity,
+} from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import ingredientBackground from '../../assets/images/ingredients.jpg';
 import { Text, View } from '../../global/style/Themed';
 import Colors from '../../constants/Colors';
 import useCamera from '../imageSearch/useCamera';
 import useColorScheme from '../../hooks/useColorScheme';
 
-type IngredientBackgroundProps = {
-  afterImageSearch: boolean | undefined;
+export type IngredientBackgroundProps = {
+  displayBackButton: boolean | undefined;
+  image: ImagePropsBase;
+  headerText: string;
+  subText: string;
 };
 
-const IngredientBackground: FC<IngredientBackgroundProps> = ({
-  afterImageSearch = false,
+const ImageBannerBackground: FC<IngredientBackgroundProps> = ({
+  displayBackButton = false,
+  image,
+  headerText,
+  subText,
 }: IngredientBackgroundProps) => {
   const { screenWidth } = useCamera();
   const colorscheme = useColorScheme();
@@ -22,14 +31,14 @@ const IngredientBackground: FC<IngredientBackgroundProps> = ({
   return (
     <ImageBackground
       resizeMode="contain"
-      source={ingredientBackground}
+      source={image}
       style={{
         width: screenWidth,
         height: screenWidth / 1.5,
         zIndex: -1,
       }}
     >
-      {afterImageSearch && (
+      {displayBackButton && (
         <TouchableOpacity
           style={{
             width: 30 + 10,
@@ -40,12 +49,7 @@ const IngredientBackground: FC<IngredientBackgroundProps> = ({
             borderRadius: 7,
           }}
           onPress={() => {
-            navigation.navigate('Root', {
-              screen: 'ImageSearch',
-              params: {
-                screen: 'ImageSearchScreen',
-              },
-            });
+            navigation.goBack();
           }}
         >
           <AntDesign name="arrowleft" size={30} color="#fff" />
@@ -55,7 +59,7 @@ const IngredientBackground: FC<IngredientBackgroundProps> = ({
         style={{
           marginLeft: 52,
           backgroundColor: 'transparent',
-          marginTop: afterImageSearch ? screenWidth / 10 : screenWidth / 4,
+          marginTop: displayBackButton ? screenWidth / 10 : screenWidth / 3.8,
         }}
       >
         <Text
@@ -65,16 +69,14 @@ const IngredientBackground: FC<IngredientBackgroundProps> = ({
             fontWeight: '700',
           }}
         >
-          {afterImageSearch ? 'Select or remove' : 'Add the ingredients'}
+          {headerText}
         </Text>
         <Text style={{ color: Colors[colorscheme].lightGrey, fontSize: 16 }}>
-          {afterImageSearch
-            ? 'the ingredients you want to include'
-            : ' you want to include in the search'}
+          {subText}
         </Text>
       </View>
     </ImageBackground>
   );
 };
 
-export default IngredientBackground;
+export default ImageBannerBackground;

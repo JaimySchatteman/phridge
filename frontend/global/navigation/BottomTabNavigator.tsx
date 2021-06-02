@@ -13,6 +13,7 @@ import Colors from '../../constants/Colors';
 import useColorScheme from '../../hooks/useColorScheme';
 import ImageSearchScreen from '../../screens/imageSearch/ImageSearchScreen';
 import TextSearchScreen from '../../screens/textSearch/TextSearchScreen';
+import RecipeScreen from '../../screens/RecipeScreen/RecipeScreen';
 import {
   BottomTabParamList,
   ImageSearchParamList,
@@ -57,6 +58,13 @@ const ImageSearchNavigator = () => {
         component={TextSearchScreen}
         options={{ headerShown: false }}
       />
+      <Image.Screen
+        name="ViewRecipes"
+        component={RecipeScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </Image.Navigator>
   );
 };
@@ -70,6 +78,13 @@ const TextSearchNavigator = () => {
         name="TextSearchScreen"
         component={TextSearchScreen}
         options={{ headerShown: false }}
+      />
+      <Text.Screen
+        name="ViewRecipes"
+        component={RecipeScreen}
+        options={{
+          headerShown: false,
+        }}
       />
     </Text.Navigator>
   );

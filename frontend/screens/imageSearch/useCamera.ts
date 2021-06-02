@@ -36,7 +36,6 @@ const useCamera = () => {
     if (Platform.OS !== 'web') {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
-      console.log(`Medialibrary status: ${status}`);
 
       if (status !== 'granted') {
         Alert.alert(

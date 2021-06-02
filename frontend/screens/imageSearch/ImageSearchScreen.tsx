@@ -1,30 +1,10 @@
 import * as React from 'react';
-import {
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Dimensions,
-  Image,
-} from 'react-native';
-import { FC, useCallback, useEffect, useLayoutEffect, useState } from 'react';
-import { CameraCapturedPicture } from 'expo-camera';
-import {
-  FontAwesome,
-  Ionicons,
-  MaterialCommunityIcons,
-} from '@expo/vector-icons';
-import { CameraType } from 'expo-camera/build/Camera.types';
-import * as ImagePicker from 'expo-image-picker';
+import { StyleSheet } from 'react-native';
+import { FC, useCallback, useState } from 'react';
 import { NavigationScreenComponent } from 'react-navigation';
 import { useIsFocused } from '@react-navigation/native';
-import { ImagePickerResult } from 'expo-image-picker';
-import { ImageInfo } from 'expo-image-picker/build/ImagePicker.types';
-import mime from 'mime';
 import Loading from '../../global/Loading';
 import { View, Text } from '../../global/style/Themed';
-import Colors from '../../constants/Colors';
-import useColorScheme from '../../hooks/useColorScheme';
 import CustomizedCamera from './CustomCamera';
 import CameraButtons from './CameraButtons';
 import useCamera from './useCamera';
