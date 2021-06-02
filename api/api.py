@@ -9,8 +9,6 @@ from clarifai_grpc.grpc.api.status import status_code_pb2
 import uuid
 import json
 import requests
-from flask_jwt_extended import create_access_token, JWTManager, jwt_required
-import pymongo
 
 channel = ClarifaiChannel.get_grpc_channel()
 stub = service_pb2_grpc.V2Stub(channel)
@@ -18,14 +16,10 @@ metadata = (("authorization", os.getenv("CLARIFY_KEY")),)
 
 app = Flask(__name__)
 
-
 '''client = pymongo.MongoClient(os.getenv("MONGO_ADDR"))
 db = client["food_search"]
 user = db["users"]'''
 
-jwt = JWTManager(app)
-
-app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET")
 
 CORS(app)
 
@@ -170,4 +164,4 @@ def login():
 '''
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0")

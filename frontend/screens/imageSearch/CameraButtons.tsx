@@ -72,9 +72,7 @@ const CameraButtons: FC<CameraButtonsProps> = ({
       if (!photo) return;
       handlePictureTaken(true);
       const formData = createFormData(photo.uri);
-      console.log('Sending Request...');
       const result: Response = await sendPicture(formData);
-      console.log('Response Received!');
       const { results }: ResultArray = await result.json();
       const extractedIngredients: Ingredient[] = results as Ingredient[];
       navigation.navigate('Root', {

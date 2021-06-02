@@ -81,20 +81,7 @@ export type TextSearchScreenParams = {
 const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
   ({ route }) => {
     const [isAfterImageSearch, setAfterImageSearch] = useState<boolean>();
-    const [ingredients, setIngredients] = useState<Ingredient[] | undefined>([
-      {
-        id: 'qsdfqs',
-        name: 'cucumber',
-      },
-      {
-        id: 'carrot',
-        name: 'carrot',
-      },
-      {
-        id: 'qsdfqsdqs',
-        name: 'tomato',
-      },
-    ]);
+    const [ingredients, setIngredients] = useState<Ingredient[] | undefined>();
     const colorscheme = useColorScheme();
     const { screenWidth, screenHeight } = useCamera();
     const navigation = useNavigation();

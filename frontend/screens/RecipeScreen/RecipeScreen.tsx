@@ -43,43 +43,7 @@ export type RecipeScreenParams = {
 const RecipeScreen: NavigationScreenComponent<FC, RecipeScreenParams> = ({
   route,
 }) => {
-  const [recipes, setRecipes] = useState<Recipe[] | undefined>([
-    {
-      id: 1084628,
-      image: 'https://spoonacular.com/recipeImages/1084628-312x231.jpg',
-      missedIngredientCount: 4,
-      title: 'Healthy Easter boiled eggs',
-      usedIngredientCount: 4,
-    },
-    {
-      id: 437311,
-      image: 'https://spoonacular.com/recipeImages/437311-312x231.jpg',
-      missedIngredientCount: 1,
-      title: 'Vegetable Bobbers',
-      usedIngredientCount: 3,
-    },
-    {
-      id: 697843,
-      image: 'https://spoonacular.com/recipeImages/697843-312x231.jpg',
-      missedIngredientCount: 3,
-      title: 'The EatingWell Diet House Salad',
-      usedIngredientCount: 3,
-    },
-    {
-      id: 402143,
-      image: 'https://spoonacular.com/recipeImages/402143-312x231.jpg',
-      missedIngredientCount: 3,
-      title: 'Three-Pepper Veggie Tray',
-      usedIngredientCount: 3,
-    },
-    {
-      id: 93866,
-      image: 'https://spoonacular.com/recipeImages/93866-312x231.jpg',
-      missedIngredientCount: 3,
-      title: 'Jamaican Garden Salad',
-      usedIngredientCount: 3,
-    },
-  ]);
+  const [recipes, setRecipes] = useState<Recipe[] | undefined>([]);
   const colorscheme = useColorScheme();
   const { screenWidth, screenHeight } = useCamera();
 

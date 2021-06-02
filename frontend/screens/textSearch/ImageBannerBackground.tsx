@@ -11,19 +11,19 @@ import Colors from '../../constants/Colors';
 import useCamera from '../imageSearch/useCamera';
 import useColorScheme from '../../hooks/useColorScheme';
 
-export type IngredientBackgroundProps = {
+export type ImageBannerBackgroundProps = {
   displayBackButton: boolean | undefined;
   image: ImagePropsBase;
   headerText: string;
   subText: string;
 };
 
-const ImageBannerBackground: FC<IngredientBackgroundProps> = ({
+const ImageBannerBackground: FC<ImageBannerBackgroundProps> = ({
   displayBackButton = false,
   image,
   headerText,
   subText,
-}: IngredientBackgroundProps) => {
+}: ImageBannerBackgroundProps) => {
   const { screenWidth } = useCamera();
   const colorscheme = useColorScheme();
   const navigation = useNavigation();
