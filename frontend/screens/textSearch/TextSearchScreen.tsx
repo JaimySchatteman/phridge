@@ -178,7 +178,7 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
           }
         });
         const response = await fetch(
-          'http://192.168.0.254:5000/api/search-recipes',
+          'https://phridge.herokuapp.com/api/search-recipes',
           {
             method: 'POST',
             body: JSON.stringify({ ingredients: checkedIngredientNames }),
@@ -189,7 +189,6 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
         );
         const { results }: ResultArray = await response.json();
         const foundRecipes: Recipe[] = results as Recipe[];
-        console.log(foundRecipes);
         navigation.navigate('Root', {
           screen: isAfterImageSearch ? 'ImageSearch' : 'TextSearch',
           params: {
@@ -199,8 +198,6 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
             },
           },
         });
-
-        console.log(checkedIngredientNames);
       }
     }, [ingredients, isAfterImageSearch, navigation]);
 

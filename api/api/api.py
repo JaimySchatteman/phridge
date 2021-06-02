@@ -101,26 +101,35 @@ def auto_complete():
     querystring = {"query": request.json["query"], "number": "5"}
     response = requests.request("GET", spoonacularBaseUrl + autocompleteSuffix, headers=headers, params=querystring)
     parsed_response = json.loads(response.content)
+
     ingredients = []
     for ingredient in parsed_response:
+        print(ingredient)
         ingredients.append(Ingredient(str(uuid.uuid4()), ingredient.get("name")))
+
     results = [obj.to_dict() for obj in ingredients]
+
     return json.dumps({"results": results}), 200
 
 
 @app.route("/api/search-recipes", methods=["POST"])
 def search_recipes():
+    print(request.json["ingredients"])
     joined_ingredients: str = ",".join(request.json["ingredients"])
     querystring = {"ingredients": joined_ingredients, "number": "5", "ignorePantry": "true", "ranking": "1"}
+    print(querystring)
     response = requests.request("GET", spoonacularBaseUrl + recipeSearchSuffix, headers=headers, params=querystring)
     parsed_response = json.loads(response.content)
+    print(parsed_response)
     recipes = []
     for recipe in parsed_response:
         print(recipe)
         recipes.append(
             Recipe(recipe.get("id"), recipe.get("title"), recipe.get("image"), recipe.get("usedIngredientCount"),
                    recipe.get("missedIngredientCount")))
+
     results = [obj.to_dict() for obj in recipes]
+
     return json.dumps({"results": results}), 200
 
 

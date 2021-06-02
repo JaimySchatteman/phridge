@@ -16,7 +16,7 @@ const useImageUpload = () => {
   }, []);
 
   const sendPicture = useCallback(async (formData: FormData) => {
-    return fetch('http://192.168.0.254:5000/api/search-ingredients', {
+    return fetch('https://phridge.herokuapp.com/api/search-ingredients', {
       method: 'POST',
       body: formData,
       headers: {

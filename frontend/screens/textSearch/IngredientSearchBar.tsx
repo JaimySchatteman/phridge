@@ -66,7 +66,7 @@ const IngredientSearchBar: FC<IngredientSearchBarProps> = ({
 
   const fetchIngredients = useCallback(async () => {
     const response = await fetch(
-      'http://192.168.0.254:5000/api/autocomplete-ingredient',
+      'https://phridge.herokuapp.com/api/autocomplete-ingredient',
       {
         method: 'POST',
         body: JSON.stringify({ query }),

@@ -1,10 +1,7 @@
 import * as React from 'react';
-import { StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
 import { FC, useEffect, useState } from 'react';
-import { SwipeAction, WingBlank } from '@ant-design/react-native';
-import { AntDesign, Feather } from '@expo/vector-icons';
 import { NavigationScreenComponent } from 'react-navigation';
-import { useNavigation } from '@react-navigation/native';
 import { Text, View } from '../../global/style/Themed';
 import useColorScheme from '../../hooks/useColorScheme';
 import Colors from '../../constants/Colors';

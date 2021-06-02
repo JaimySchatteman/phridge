@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Camera } from 'expo-camera';
 import { CameraType } from 'expo-camera/build/Camera.types';
 import { Alert, Dimensions, Platform } from 'react-native';
@@ -28,7 +23,6 @@ const useCamera = () => {
 
   const askForCameraPermission = useCallback(async () => {
     const { status } = await Camera.requestPermissionsAsync();
-    console.log(`Camera perm: ${status}`);
     setHasPermission(status === 'granted');
   }, []);
 
