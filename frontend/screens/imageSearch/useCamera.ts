@@ -22,8 +22,8 @@ const useCamera = () => {
 
   const [cameraPadding, setCameraPadding] = useState(0);
   const [ratio, setRatio] = useState('4:3'); // default is 4:3
-  const { height, width } = Dimensions.get('window');
-  const screenRatio = height / width;
+  const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
+  const screenRatio = screenHeight / screenWidth;
   const [isRatioSet, setIsRatioSet] = useState(false);
 
   const askForCameraPermission = useCallback(async () => {
@@ -64,9 +64,6 @@ const useCamera = () => {
     let desiredRatio: string | null = '4:3'; // Start with the system default
     if (Platform.OS === 'android') {
       const ratios = await camera?.getSupportedRatiosAsync();
-
-      console.log(width);
-
       if (ratios) {
         const distances: RatioOptions = {};
         const realRatios: RatioOptions = {};
@@ -87,7 +84,7 @@ const useCamera = () => {
         desiredRatio = minDistance;
         if (desiredRatio) {
           const remainder = Math.floor(
-            (height - realRatios[desiredRatio] * width) / 2,
+            (screenHeight - realRatios[desiredRatio] * screenWidth) / 2,
           );
           setCameraPadding(remainder);
           setRatio(desiredRatio);
@@ -95,7 +92,7 @@ const useCamera = () => {
         }
       }
     }
-  }, [camera, height, ratio, screenRatio, width]);
+  }, [camera, screenHeight, ratio, screenRatio, screenWidth]);
 
   const setCameraReady = useCallback(async () => {
     if (!isRatioSet) {
@@ -110,7 +107,8 @@ const useCamera = () => {
     setCameraType,
     cameraType,
     ratio,
-    width,
+    screenWidth,
+    screenHeight,
     handleCameraType,
     setCameraReady,
     cameraPadding,

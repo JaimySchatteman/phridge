@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { Button, SwipeAction } from '@ant-design/react-native';
 import { AntDesign } from '@expo/vector-icons';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
@@ -9,53 +9,107 @@ import { Text, View } from '../../global/style/Themed';
 import useColorScheme from '../../hooks/useColorScheme';
 import IngredientBackground from './IngredientBackground';
 import Colors from '../../constants/Colors';
-import useCamera from '../imageSearch/useCamera';
 import IngredientSearchBar from './IngredientSearchBar';
+import useCamera from '../imageSearch/useCamera';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   bottomHalfContainer: {
-    height: '100%',
-    borderRadius: 25,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
     marginTop: -30,
     zIndex: 9,
   },
+  scrollView: {
+    paddingTop: 65,
+    paddingLeft: 25,
+    paddingRight: 25,
+    borderRadius: 5,
+  },
+  swipeAction: {
+    borderRadius: 12,
+    height: 66,
+    elevation: 6,
+    marginBottom: 10,
+  },
+  listItem: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  listItemContent: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    height: 66,
+  },
+  buttonContainer: {
+    flex: 1,
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    height: 50,
+    borderRadius: 25,
+    zIndex: 998,
+  },
+  buttonSearchRecipes: {
+    borderRadius: 25,
+    height: 50,
+    zIndex: 999,
+    borderWidth: 2,
+    elevation: 6,
+  },
 });
 
-export interface IngredientSuggestion {
-  id: number;
+export interface Ingredient {
+  id: string;
   name: string;
   isChecked?: boolean;
-}
-
-export interface IngredientPrediction extends IngredientSuggestion {
-  accuracy: number;
+  accuracy?: number;
 }
 
 export type TextSearchScreenParams = {
-  afterImageSearch: boolean;
-  extractedIngredients: IngredientPrediction[];
+  extractedIngredients?: Ingredient[];
 };
 
 const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
-  ({ route, navigation }) => {
-    const { afterImageSearch, extractedIngredients }: TextSearchScreenParams =
-      route.params;
-    const [ingredients, setIngredients] =
-      useState<IngredientPrediction[] | undefined>();
+  ({ route }) => {
+    const [isAfterImageSearch, setAfterImageSearch] = useState<boolean>();
+    const [ingredients, setIngredients] = useState<Ingredient[] | undefined>();
     const colorscheme = useColorScheme();
+    const { screenWidth, screenHeight } = useCamera();
 
-    console.log(extractedIngredients);
+    useEffect(() => {
+      if (route.params && route.params.extractedIngredients) {
+        const { extractedIngredients }: TextSearchScreenParams = route.params;
+        setAfterImageSearch(true);
+        setIngredients(extractedIngredients);
+      } else {
+        setAfterImageSearch(false);
+      }
+    }, [route.params]);
+
+    const handleAddToIngredients = useCallback(
+      (ingredient: Ingredient): void => {
+        console.log(ingredient);
+        if (ingredients) {
+          const newIngredients = [ingredient, ...ingredients];
+          return setIngredients(newIngredients);
+        }
+        return setIngredients([ingredient]);
+      },
+      [ingredients],
+    );
 
     const toggleCheckIngredient = useCallback(
-      (idToToggle: number) => {
-        console.log(idToToggle);
+      (idToToggle: string): void => {
         if (ingredients && ingredients?.length > 0) {
-          const currentIngredients: IngredientPrediction[] = [...ingredients];
+          const currentIngredients: Ingredient[] = [...ingredients];
           const ingredientToToggleIndex: number | undefined =
-            currentIngredients.findIndex(({ id }: IngredientPrediction) => {
+            currentIngredients.findIndex(({ id }: Ingredient) => {
               return idToToggle === id;
             });
           if (ingredientToToggleIndex !== undefined) {
@@ -69,11 +123,11 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
     );
 
     const removeIngredient = useCallback(
-      (idToRemove: number) => {
+      (idToRemove: string): void => {
         if (ingredients) {
-          const currentIngredients: IngredientPrediction[] = [...ingredients];
+          const currentIngredients: Ingredient[] = [...ingredients];
           const newIngredients = currentIngredients.filter(
-            ({ id }: IngredientPrediction) => {
+            ({ id }: Ingredient) => {
               return idToRemove !== id;
             },
           );
@@ -85,9 +139,7 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
 
     const checkIfIngredientsAreChecked = useCallback((): boolean => {
       if (ingredients) {
-        console.log(ingredients);
-
-        return ingredients.some(({ isChecked }: IngredientPrediction) => {
+        return ingredients.some(({ isChecked }: Ingredient) => {
           return isChecked;
         });
       }
@@ -96,8 +148,8 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
 
     return (
       <View style={styles.container}>
-        <IngredientBackground afterImageSearch={afterImageSearch} />
-        <IngredientSearchBar />
+        <IngredientBackground afterImageSearch={isAfterImageSearch} />
+        <IngredientSearchBar handleAddToIngredients={handleAddToIngredients} />
         <View
           style={[
             styles.bottomHalfContainer,
@@ -106,33 +158,29 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
                 colorscheme === 'dark'
                   ? Colors[colorscheme].backgroundDarker
                   : Colors[colorscheme].veryLightGrey,
+              height: screenHeight - screenWidth / 1.5 + 5,
             },
           ]}
         >
           <ScrollView
-            style={{
-              paddingTop: 65,
-              paddingLeft: 20,
-              paddingRight: 20,
-              borderRadius: 5,
-            }}
+            contentContainerStyle={{ paddingBottom: 160 }}
+            style={styles.scrollView}
           >
             {ingredients && ingredients.length > 0 ? (
               ingredients.map(
-                ({ id, name, accuracy, isChecked }: IngredientPrediction) => {
+                ({ id, name, accuracy, isChecked }: Ingredient) => {
                   return (
                     <SwipeAction
                       autoClose
-                      style={{
-                        backgroundColor:
-                          colorscheme === 'dark'
-                            ? Colors.light.normalGrey
-                            : Colors.light.background,
-                        borderRadius: 12,
-                        height: 66,
-                        elevate: 6,
-                        marginBottom: 10,
-                      }}
+                      style={[
+                        styles.swipeAction,
+                        {
+                          backgroundColor:
+                            colorscheme === 'dark'
+                              ? Colors.light.normalGrey
+                              : Colors.light.background,
+                        },
+                      ]}
                       right={[
                         {
                           text: (
@@ -144,19 +192,21 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
                       ]}
                     >
                       <View
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'row',
-                          backgroundColor:
-                            colorscheme === 'dark'
-                              ? Colors.light.normalGrey
-                              : Colors.light.background,
-                          height: 66,
-                        }}
+                        style={[
+                          styles.listItem,
+                          {
+                            backgroundColor:
+                              colorscheme === 'dark'
+                                ? Colors.light.normalGrey
+                                : Colors.light.background,
+                            height: 66,
+                          },
+                        ]}
                       >
                         <BouncyCheckbox
                           size={32}
                           style={{ marginLeft: 15 }}
+                          isChecked={isChecked}
                           fillColor={Colors.light.text}
                           iconStyle={{ borderColor: Colors.light.text }}
                           onPress={() => {
@@ -164,17 +214,15 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
                           }}
                         />
                         <View
-                          style={{
-                            flex: 1,
-                            display: 'flex',
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            backgroundColor:
-                              colorscheme === 'dark'
-                                ? Colors.light.normalGrey
-                                : Colors.light.background,
-                            height: 66,
-                          }}
+                          style={[
+                            styles.listItemContent,
+                            {
+                              backgroundColor:
+                                colorscheme === 'dark'
+                                  ? Colors.light.normalGrey
+                                  : Colors.light.background,
+                            },
+                          ]}
                         >
                           <Text
                             style={{
@@ -190,20 +238,22 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
                             {name[0].toUpperCase() + name.slice(1, name.length)}
                           </Text>
 
-                          <Text
-                            style={{
-                              color:
-                                colorscheme === 'dark'
-                                  ? Colors.light.lightGrey
-                                  : Colors.dark.backgroundDarker,
-                              padding: 12,
-                              marginTop: 12,
-                              marginRight: 15,
-                              fontSize: 12,
-                            }}
-                          >
-                            {accuracy * 100}% certain
-                          </Text>
+                          {accuracy && (
+                            <Text
+                              style={{
+                                color:
+                                  colorscheme === 'dark'
+                                    ? Colors.light.lightGrey
+                                    : Colors.dark.backgroundDarker,
+                                padding: 12,
+                                marginTop: 12,
+                                marginRight: 15,
+                                fontSize: 12,
+                              }}
+                            >
+                              {Math.round(accuracy)}% certain
+                            </Text>
+                          )}
                         </View>
                       </View>
                     </SwipeAction>
@@ -219,7 +269,6 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
                         ? Colors.light.background
                         : Colors.dark.backgroundDarker,
                     marginTop: 24,
-
                     textAlign: 'center',
                     fontSize: 24,
                   }}
@@ -241,27 +290,35 @@ const TextSearchScreen: NavigationScreenComponent<FC, TextSearchScreenParams> =
             )}
           </ScrollView>
         </View>
-        <Button
-          type="primary"
-          disabled={!checkIfIngredientsAreChecked()}
-          style={{
-            flex: 1,
-            position: 'absolute',
-            bottom: 20,
-            left: 20,
-            right: 20,
-            height: 50,
-            borderRadius: 25,
-            zIndex: 999,
-            backgroundColor: Colors.light.tint,
-            borderColor: Colors.light.tint,
-          }}
-          onPress={() => {
-            console.log('qsdfqsdf');
-          }}
+        <View
+          style={[
+            styles.buttonContainer,
+            {
+              backgroundColor: Colors.light.tint,
+              borderColor: Colors.light.tint,
+            },
+          ]}
         >
-          Search Recipes
-        </Button>
+          <Button
+            type="primary"
+            disabled={!checkIfIngredientsAreChecked()}
+            style={[
+              styles.buttonSearchRecipes,
+              {
+                backgroundColor: Colors.light.tint,
+                borderColor: Colors.light.text,
+              },
+            ]}
+            activeStyle={{
+              backgroundColor: Colors.light.text,
+            }}
+            onPress={() => {
+              console.log('qsdfqsdf');
+            }}
+          >
+            Search Recipes
+          </Button>
+        </View>
       </View>
     );
   };

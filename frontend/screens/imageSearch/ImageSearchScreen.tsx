@@ -50,15 +50,15 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
     camera,
     handleCameraType,
     cameraPadding,
-    width,
+    screenWidth,
   } = useCamera();
 
-  const handlePictureTaken = useCallback(() => {
-    setPictureTaken(true);
+  const handlePictureTaken = useCallback((state: boolean) => {
+    setPictureTaken(state);
   }, []);
 
-  const handleImageSelected = useCallback(() => {
-    setImageSelected(true);
+  const handleImageSelected = useCallback((state: boolean) => {
+    setImageSelected(state);
   }, []);
 
   if (hasPermission === null) {
@@ -83,13 +83,13 @@ const ImageSearchScreen: NavigationScreenComponent<FC, undefined> = () => {
                   setCamera={setCamera}
                   setCameraReady={setCameraReady}
                   ratio={ratio}
-                  width={width}
+                  screenWidth={screenWidth}
                 />
                 <CameraButtons
                   handleImageSelected={handleImageSelected}
                   handlePictureTaken={handlePictureTaken}
                   camera={camera}
-                  width={width}
+                  screenWidth={screenWidth}
                   cameraPadding={cameraPadding}
                   handleCameraType={handleCameraType}
                 />

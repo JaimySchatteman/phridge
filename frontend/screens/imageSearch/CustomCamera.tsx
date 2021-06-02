@@ -1,30 +1,16 @@
-import React, {
-  Dispatch,
-  FC,
-  useCallback,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { Dispatch, FC } from 'react';
 import { Camera } from 'expo-camera';
-import { Alert, Dimensions, Platform } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 import { CameraType } from 'expo-camera/build/Camera.types';
 import Colors from '../../constants/Colors';
 import { View } from '../../global/style/Themed';
 import useColorScheme from '../../hooks/useColorScheme';
-
-import useCamera from './useCamera';
-
-type RatioOptions = {
-  [key: string]: number;
-};
 
 type CustomCameraProps = {
   setCameraReady: () => void;
   ratio: string;
   cameraType: CameraType;
   setCamera: Dispatch<React.SetStateAction<Camera | undefined>>;
-  width: number;
+  screenWidth: number;
 };
 
 const CustomizedCamera: FC<CustomCameraProps> = ({
@@ -32,7 +18,7 @@ const CustomizedCamera: FC<CustomCameraProps> = ({
   ratio,
   cameraType,
   setCamera,
-  width,
+  screenWidth,
 }: CustomCameraProps) => {
   const colorScheme = useColorScheme();
 
@@ -61,7 +47,7 @@ const CustomizedCamera: FC<CustomCameraProps> = ({
           style={{
             alignSelf: 'flex-end',
             minHeight: 30,
-            width,
+            width: screenWidth,
             borderTopLeftRadius: 30,
             borderTopRightRadius: 30,
             backgroundColor:

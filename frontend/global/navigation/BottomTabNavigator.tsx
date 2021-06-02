@@ -24,11 +24,20 @@ import {
 function TabBarIcon({
   name,
   color,
+  size,
 }: {
   name: React.ComponentProps<typeof MaterialIcons>['name'];
   color: string;
+  size: number;
 }) {
-  return <MaterialIcons size={30} name={name} color={color} />;
+  return (
+    <MaterialIcons
+      size={size}
+      name={name}
+      color={color}
+      style={{ paddingTop: name === 'search' ? 3 : 0 }}
+    />
+  );
 }
 
 // Each tab has its own navigation stack, you can read more about this pattern here:
@@ -79,6 +88,11 @@ const BottomTabNavigator: FC = () => {
         activeTintColor: Colors[colorScheme].tint,
         inactiveBackgroundColor: Colors[colorScheme].background,
         activeBackgroundColor: Colors[colorScheme].background,
+        style: {
+          height: 60,
+          paddingBottom: 5,
+          backgroundColor: Colors[colorScheme].background,
+        },
       }}
     >
       <BottomTab.Screen
@@ -86,7 +100,7 @@ const BottomTabNavigator: FC = () => {
         component={ImageSearchNavigator}
         options={{
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="image-search" color={color} />
+            <TabBarIcon name="image-search" color={color} size={30} />
           ),
           tabBarLabel: 'Image Search',
         }}
@@ -95,7 +109,9 @@ const BottomTabNavigator: FC = () => {
         name="TextSearch"
         component={TextSearchNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="search" color={color} size={33} />
+          ),
           tabBarLabel: 'Manual Search',
         }}
       />

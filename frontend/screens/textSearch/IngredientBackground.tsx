@@ -1,5 +1,7 @@
 import React, { FC } from 'react';
-import { ImageBackground } from 'react-native';
+import { ImageBackground, TouchableOpacity } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import ingredientBackground from '../../assets/images/ingredients.jpg';
 import { Text, View } from '../../global/style/Themed';
 import Colors from '../../constants/Colors';
@@ -7,26 +9,53 @@ import useCamera from '../imageSearch/useCamera';
 import useColorScheme from '../../hooks/useColorScheme';
 
 type IngredientBackgroundProps = {
-  afterImageSearch?: boolean;
+  afterImageSearch: boolean | undefined;
 };
 
 const IngredientBackground: FC<IngredientBackgroundProps> = ({
   afterImageSearch = false,
 }: IngredientBackgroundProps) => {
-  const { width } = useCamera();
+  const { screenWidth } = useCamera();
   const colorscheme = useColorScheme();
+  const navigation = useNavigation();
 
   return (
     <ImageBackground
       resizeMode="contain"
       source={ingredientBackground}
-      style={{ width, height: width / 1.5, zIndex: -1 }}
+      style={{
+        width: screenWidth,
+        height: screenWidth / 1.5,
+        zIndex: -1,
+      }}
     >
+      {afterImageSearch && (
+        <TouchableOpacity
+          style={{
+            width: 30 + 10,
+            marginLeft: screenWidth / 24,
+            marginTop: screenWidth / 12,
+            padding: 5,
+            backgroundColor: `rgba(${Colors.dark.backgroundDarker}, 0.5)`,
+            borderRadius: 7,
+          }}
+          onPress={() => {
+            navigation.navigate('Root', {
+              screen: 'ImageSearch',
+              params: {
+                screen: 'ImageSearchScreen',
+              },
+            });
+          }}
+        >
+          <AntDesign name="arrowleft" size={30} color="#fff" />
+        </TouchableOpacity>
+      )}
       <View
         style={{
           marginLeft: 52,
           backgroundColor: 'transparent',
-          marginTop: width / 3.5,
+          marginTop: afterImageSearch ? screenWidth / 10 : screenWidth / 4,
         }}
       >
         <Text

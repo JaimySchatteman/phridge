@@ -1,5 +1,5 @@
-import React, { FC, useCallback, useEffect } from 'react';
-import { Dimensions, TouchableOpacity } from 'react-native';
+import React, { FC, useCallback } from 'react';
+import { TouchableOpacity } from 'react-native';
 import {
   FontAwesome,
   Ionicons,
@@ -9,34 +9,25 @@ import * as ImagePicker from 'expo-image-picker';
 import { ImagePickerResult } from 'expo-image-picker';
 import { Camera, CameraCapturedPicture } from 'expo-camera';
 import { useNavigation } from '@react-navigation/native';
-import { NavigationActions } from 'react-navigation';
 import Colors from '../../constants/Colors';
 import useColorScheme from '../../hooks/useColorScheme';
 import { View } from '../../global/style/Themed';
 import useImageUpload from './useImageUpload';
-import useCamera from './useCamera';
-import TextSearchScreen, {
-  TextSearchScreenParams,
-} from '../textSearch/TextSearchScreen';
-import { RootStackParamList } from '../../types';
-
-type IngredientPrediction = {
-  name: string;
-  score: number;
-};
+import { Ingredient } from '../textSearch/TextSearchScreen';
+import { ResultArray } from '../textSearch/IngredientSearchBar';
 
 type CameraButtonsProps = {
   camera: Camera | undefined;
-  width: number;
+  screenWidth: number;
   cameraPadding: number;
   handleCameraType: () => void;
-  handleImageSelected: () => void;
-  handlePictureTaken: () => void;
+  handleImageSelected: (state: boolean) => void;
+  handlePictureTaken: (state: boolean) => void;
 };
 
 const CameraButtons: FC<CameraButtonsProps> = ({
   camera,
-  width,
+  screenWidth,
   cameraPadding,
   handleCameraType,
   handleImageSelected,
@@ -53,23 +44,24 @@ const CameraButtons: FC<CameraButtonsProps> = ({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
         });
       if (imagePickerResult.cancelled) return;
-      handleImageSelected();
+      handleImageSelected(true);
       const formData: FormData = createFormData(imagePickerResult.uri);
-      const results: Response = await sendPicture(formData);
-      const extractedIngredients: IngredientPrediction[] = await results.json();
-      console.log(extractedIngredients);
+      const response: Response = await sendPicture(formData);
+      const { results }: ResultArray = await response.json();
+      const extractedIngredients: Ingredient[] = results as Ingredient[];
       navigation.navigate('Root', {
         screen: 'ImageSearch',
         params: {
           screen: 'AdjustIngredients',
           params: {
-            afterImageSearch: true,
             extractedIngredients,
           },
         },
       });
+      handleImageSelected(false);
     } catch (e) {
       console.log(e);
+      handleImageSelected(false);
     }
   }, [createFormData, handleImageSelected, navigation, sendPicture]);
 
@@ -78,27 +70,26 @@ const CameraButtons: FC<CameraButtonsProps> = ({
       const photo: CameraCapturedPicture | undefined =
         await camera?.takePictureAsync();
       if (!photo) return;
-      handlePictureTaken();
+      handlePictureTaken(true);
       const formData = createFormData(photo.uri);
       console.log('Sending Request...');
       const result: Response = await sendPicture(formData);
       console.log('Response Received!');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const extractedIngredients: IngredientPrediction[] = await result.json();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      // console.log(extractedIngredients);
+      const { results }: ResultArray = await result.json();
+      const extractedIngredients: Ingredient[] = results as Ingredient[];
       navigation.navigate('Root', {
         screen: 'ImageSearch',
         params: {
           screen: 'AdjustIngredients',
           params: {
-            afterImageSearch: true,
             extractedIngredients,
           },
         },
       });
+      handlePictureTaken(false);
     } catch (e) {
       console.log(e);
+      handlePictureTaken(false);
     }
   };
 
@@ -107,7 +98,7 @@ const CameraButtons: FC<CameraButtonsProps> = ({
   return (
     <View
       style={{
-        width,
+        width: screenWidth,
         height: cameraPadding * 2,
         display: 'flex',
         flexDirection: 'row',

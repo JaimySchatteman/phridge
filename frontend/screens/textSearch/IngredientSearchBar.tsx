@@ -1,66 +1,97 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 import { SearchBar } from 'react-native-elements';
-import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, TouchableHighlight } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
 import Colors from '../../constants/Colors';
 import { Text } from '../../global/style/Themed';
 import useCamera from '../imageSearch/useCamera';
 import useColorScheme from '../../hooks/useColorScheme';
-import { IngredientSuggestion } from './TextSearchScreen';
+import { Ingredient } from './TextSearchScreen';
 
 const styles = StyleSheet.create({
   searchbarContainer: {
-    zIndex: 3,
+    zIndex: 99,
     borderRadius: 25,
     height: 50,
-    paddingTop: 0,
     marginRight: 40,
     marginLeft: 40,
     marginTop: -55,
-    padding: 0,
+    paddingTop: 0,
+    paddingLeft: 8,
     elevation: 4,
   },
+  inputStyle: {
+    height: 50,
+    marginTop: -4,
+    marginLeft: 10,
+  },
+  flatListContainer: {
+    flex: 1,
+    position: 'absolute',
+    left: 60,
+    right: 60,
+    marginTop: 10,
+    zIndex: 999,
+    elevation: 8,
+  },
   flatList: {
-    paddingLeft: 15,
-    paddingTop: 15,
-    paddingBottom: 15,
-    fontSize: 20,
-    borderBottomWidth: 1,
-    marginLeft: 70,
-    marginRight: 70,
+    padding: 12,
+    fontSize: 16,
+    zIndex: 99,
   },
 });
 
-type ComponentType = {};
+export type ResultArray = {
+  results: Ingredient[];
+};
 
-const IngredientSearchBar: FC = () => {
+type IngredientSearchBarProps = {
+  handleAddToIngredients: (ingredient: Ingredient) => void;
+};
+
+const IngredientSearchBar: FC<IngredientSearchBarProps> = ({
+  handleAddToIngredients,
+}: IngredientSearchBarProps) => {
   const [ingredientSuggestions, setIngredientSuggestions] =
-    useState<IngredientSuggestion[]>();
+    useState<Ingredient[]>();
   const [query, setQuery] = useState<string>('');
-  const { width } = useCamera();
+  const { screenWidth } = useCamera();
   const colorscheme = useColorScheme();
 
   const updateQuery = (input: string) => {
     setQuery(input);
   };
 
-  const fetchData = async () => {
-    setIngredientSuggestions([
+  const fetchIngredients = useCallback(async () => {
+    const response = await fetch(
+      'http://192.168.0.254:5000/api/autocomplete-ingredient',
       {
-        id: 2,
-        name: 'eazqsfd',
+        method: 'POST',
+        body: JSON.stringify({ query }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-      {
-        id: 3,
-        name: 'eazqsdfqssdsfd',
-      },
-    ]);
-  };
+    );
+    const { results }: ResultArray = await response.json();
+    const suggestedIngredients: Ingredient[] = results as Ingredient[];
+    setIngredientSuggestions(suggestedIngredients);
+  }, [query]);
+
+  const handleSuggestionPress = useCallback(
+    (newIngredient: Ingredient) => {
+      console.log('pressed');
+      setQuery('');
+      handleAddToIngredients(newIngredient);
+    },
+    [handleAddToIngredients],
+  );
 
   return (
     <>
       <SearchBar
         onChangeText={updateQuery}
-        onSubmitEditing={fetchData}
+        onSubmitEditing={fetchIngredients}
         value={query}
         placeholder="salmon, cabbage, carrot, ..."
         platform="android"
@@ -74,34 +105,52 @@ const IngredientSearchBar: FC = () => {
         inputContainerStyle={{
           height: 50,
         }}
-        inputStyle={{
-          height: 50,
-          color: Colors[colorscheme].lightGrey,
-          marginLeft: 10,
-        }}
+        inputStyle={[
+          styles.inputStyle,
+          {
+            color: Colors[colorscheme].lightGrey,
+          },
+        ]}
+        searchIcon={
+          <AntDesign
+            name="search1"
+            size={25}
+            color={Colors[colorscheme].lightGrey}
+          />
+        }
       />
       <FlatList
-        style={{
-          borderColor: Colors[colorscheme].backgroundDarker,
-          marginTop: 10,
-        }}
+        style={[
+          styles.flatListContainer,
+          {
+            top: screenWidth / 1.5 - 10,
+            width: screenWidth - 60 * 2,
+            borderColor: Colors[colorscheme].backgroundDarker,
+          },
+        ]}
         data={query.length > 0 ? ingredientSuggestions : []}
-        keyExtractor={(i: IngredientSuggestion) => i.id.toString()}
+        keyExtractor={(i: Ingredient) => i.id}
         extraData={query}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => setQuery(item.name)}>
+          <TouchableHighlight onPress={() => handleSuggestionPress(item)}>
             <Text
               style={[
                 styles.flatList,
                 {
-                  backgroundColor: Colors[colorscheme].normalGrey,
-                  color: Colors[colorscheme].lightGrey,
+                  backgroundColor:
+                    colorscheme === 'dark'
+                      ? Colors[colorscheme].normalGrey
+                      : Colors[colorscheme].background,
+                  color:
+                    colorscheme === 'dark'
+                      ? Colors[colorscheme].lightGrey
+                      : Colors[colorscheme].normalGrey,
                 },
               ]}
             >
               {item.name}
             </Text>
-          </TouchableOpacity>
+          </TouchableHighlight>
         )}
       />
     </>
